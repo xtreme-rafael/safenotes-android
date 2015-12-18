@@ -1,0 +1,15 @@
+plugins {
+    id "org.golang.mobile.bind" version "0.2.3"
+}
+
+gobind {
+    /* The Go package path; must be under one of the GOPATH elements or
+     a relative to the current directory (e.g. ../../hello) */
+    pkg = "github.com/xtreme-rafael/safenotes-core"
+
+    /* GOPATH where the Go package is; check `go env` */
+    GOPATH = "/Users/pivotal/code/go"
+
+    /* Absolute path to the go binary */
+    GO = "/usr/local/go/bin/go"
+}
