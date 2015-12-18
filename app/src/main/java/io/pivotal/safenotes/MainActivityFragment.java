@@ -5,7 +5,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import go.safenotes_core.Safenotes_core;
 
@@ -15,29 +23,42 @@ import go.safenotes_core.Safenotes_core;
 public class MainActivityFragment extends Fragment {
 
     private int mCounter = 1;
-    private TextView mTextView;
+    private ListView mNotesListView;
+    private Gson mGson;
+    private Type mNoteArrayType;
 
     public MainActivityFragment() {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mGson = new Gson();
+        mNoteArrayType = new TypeToken<ArrayList<Safenotes_core.Note>>() {}.getType();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        mTextView = (TextView) view.findViewById(R.id.textview);
+        mNotesListView = (ListView) view.findViewById(R.id.notes_list);
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        String notes = Safenotes_core.GetNotes();
-        mTextView.setText(notes);
+        refreshNotes();
+    }
+
+    private void refreshNotes() {
+        String notesJson = Safenotes_core.GetNotes();
+        ArrayList<Safenotes_core.Note> notes = mGson.fromJson(notesJson, mNoteArrayType);
+        NotesAdapter adapter = new NotesAdapter(getContext(), R.layout.listitem_note, notes);
+        mNotesListView.setAdapter(adapter);
     }
 
     public void addNote() {
         Safenotes_core.AddNote("Note " + mCounter, "Content for note " + mCounter++);
-        String notes = Safenotes_core.GetNotes();
-        mTextView.setText(notes);
+        refreshNotes();
     }
 }
